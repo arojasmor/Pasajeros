@@ -88,11 +88,9 @@ lapply(paquetes, require, character.only = TRUE)
 
 La información para este análisis es pública y los datos así como su descripción se encuentran en la página del [AICM](https://www.aicm.com.mx/estadisticas-del-aicm/17-09-2013).
 
-Es importante aclarar que los datos originales se encuentran dentro de informes en formato pdf, por lo que, para extraerlos se recurrió a la técnica conocida como **Reconocimiento Óptico de Caracteres (OCR)**. Para el periodo 2012-2019, se utilizó R y para el resto del periodo 2008-2011 se utilizó Python, ya que ofreció los mejores resultados para esos años. Los archivos con todo el código, de R y Python, se pueden encontrar en mi repositorio de github. Habiendo hecho esta aclaración, a continuación, ya solo se importa el archivo final:
+Es importante aclarar que los datos originales se encuentran dentro de informes en formato pdf, por lo que, para extraerlos se recurrió a la técnica conocida como **Reconocimiento Óptico de Caracteres (OCR)**. Para el periodo 2012-2019, se utilizó R y para el resto del periodo 2008-2011 se utilizó Python, ya que ofreció los mejores resultados para esos años. Los archivos con todo el código, de R y Python, se pueden encontrar en mi repositorio de [github](https://github.com/arojasmor/Pasajeros). Habiendo hecho esta aclaración, a continuación, ya solo se importa el archivo final:
 
 ```{r variables}
-setwd("~/Curriculums/02_Time_Series/Pasajeros/")
-
 salidas <- read.csv("Salidas_Nacionales.csv")
 
 head(salidas)
@@ -1590,8 +1588,6 @@ Vamos a pronosticar con ese modelo el primer bimestre de 2020, ya que esos meses
 
 ```{r}
 # se cargan los datos
-setwd("~/Curriculums/02_Time_Series/Pasajeros/")
-
 salidas.2020.C <- read.csv("Salidas_Nacionales_C.csv")
 salidas.2020.C.ts <- ts(salidas.2020.C[,2], 
                       start = c(2008, 1),
