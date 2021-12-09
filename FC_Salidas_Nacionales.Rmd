@@ -17,14 +17,16 @@ editor_options:
 
 &nbsp;
 
-# Presentación
+# <span style="color:rgb(0, 0, 205)">Presentación</span>
 &nbsp;
 
+<div class=text-justify>
 En este trabajo se desarrollará un proyecto de analítica relacionado con el modelado de una serie de tiempo. Este tipo de proyectos es muy común en prácticamente todas las empresas, pues en su Plan de Negocios anual, es donde se especifican los objetivos y los escenarios tanto operativos como financieros y éstos se construyen a partir de pronósticos.
 
 El trabajo consistirá en pronosticar la cantidad mensual de clientes, para el año 2019, del Aeropuerto Internacional de la Ciudad de México (AICM), en otras palabras, se hará una predicción de los pasajeros que abordaron vuelos nacionales más vuelos internacionales, pero solo las salidas. El rango histórico de datos abarca desde el año 2008 a 2019 y aunque se dispone de información más actual, por cuestiones relacionadas con la pandemia de Coivd-19, se decidió hacer el ponóstico solo para 2019, ya que esto permitirá medir la precisión del modelo sin el impacto de dicha pandemia. Posteriormente, ya con el modelo final, se hará la predicción para los meses de enero y febrero de 2020, ya que en México el confinamiento empezó a finales de marzo.
+</div>
 
-# Etapas
+# <span style="color:rgb(0, 0, 205)">Etapas</span>
 &nbsp;
 
 Como este trabajo consistará en la creación de un modelo de aprendizaje supervisado para una serie de tiempo la etapa del análisis exploratorio es un poco más densa que los análisis exploratorios descriptivos comunes. Esta etapa se constituye de las siguientes fases: 
@@ -37,7 +39,7 @@ Como este trabajo consistará en la creación de un modelo de aprendizaje superv
   + Análisis de estacionariedad
   + Detección de estacionalidad
 
-# Set up
+# <span style="color:rgb(0, 0, 205)">Set up</span>
 &nbsp;
 
 Iniciamos configurando las opciones generales que vamos a requerir para el desarrollo de este proyecto.
@@ -83,12 +85,14 @@ lapply(paquetes, require, character.only = TRUE)
 
 &nbsp;
 
-# Carga de Datos
+# <span style="color:rgb(0, 0, 205)">Carga de datos</span>
 &nbsp;
 
+<div class=text-justify>
 La información para este análisis es pública y los datos así como su descripción se encuentran en la página del [AICM](https://www.aicm.com.mx/estadisticas-del-aicm/17-09-2013).
 
 Es importante aclarar que los datos originales se encuentran dentro de informes en formato pdf, por lo que, para extraerlos se recurrió a la técnica conocida como **Reconocimiento Óptico de Caracteres (OCR)**. Para el periodo 2012-2019, se utilizó R y para el resto del periodo 2008-2011 se utilizó Python, ya que ofreció los mejores resultados para esos años. Los archivos con todo el código, de R y Python, se pueden encontrar en mi repositorio de [github](https://github.com/arojasmor/Pasajeros). Habiendo hecho esta aclaración, a continuación, ya solo se importa el archivo final:
+</div>
 
 ```{r variables}
 salidas <- read.csv("Salidas_Nacionales.csv")
@@ -117,9 +121,9 @@ Ahora si, ya tenemos nuestra serie de tiempo la cual inicia en enero de 2008 y t
 
 &nbsp;
 
-# Análisis Exploratorio
+# <span style="color:rgb(0, 0, 205)">Análisis exploratorio</span>
 
-## Análisis visual
+## <span style="color:rgb(0, 0, 205)">Análisis visual</span>
 
 Empecemos por analizar visualmente la serie para conocer qué forma tiene así como sus principales medidas estadísticas:
 
@@ -133,11 +137,13 @@ salidas %>%
   labs(title = "AICM: Salidas Nacionales e Internacionales 2008-2019")
 ```
 
+<div class=text-justify>
 Lo que se puede apreciar es que hasta finales de 2010 la tendencia es constante y hasta un poco decreciente, sin embargo, desde inicios de 2011 la tendencia es creciente y aditiva. Esta serie claramente muestra un cambio de tendencia, lo que muy probablemente ocasione que no se pueda cumplir el supuesto de estacionariedad incluso si aplicamos diferencias. Conviene de una vez comprobar ese cambio o quiebre, para lo cual haremos lo siguiente:
 
 1. Crear el gráfico CUSUM, que nos mostrará visualmente si la serie presenta un quiebre y en qué parte.
 2. Crear una variable dicotómica que tomará valores de 0 hasta enero de 2011 y posterior a esa fecha tomara valores de 1.
 3. Hacer una regresión lineal cuyas variables independientes serán: la variable dicotómica creada, el tiempo (que será un consecutivo) y la interacción entre el tiempo y la variable dicotómica.
+</div>
 
 ```{r}
 t <- c(1:length(salidas.ts))
@@ -159,16 +165,20 @@ reg <- lm(Salidas ~ D + t + (D*t), data = t.salidas)
 summary(reg)
 ```
 
+<div class=text-justify>
 Los coeficientes de la variable dicotómica y de su interacción con el tiempo salieron significativos. Ahora, el coeficeinte de la variable dicotómica D, es el intercepto diferencial y el coeficiente de la interacción entre el tiempo y la variable dicotómica es el coeficiente de la pendiente diferencial. Lo anterior, significa que los dos periodos son distintos y las causas de la diferencia son tanto el intercepto como la pendiente.
 
 Por lo anterior, la serie que vamos a modelar presenta cambio de tendencia a partir de 2011, lo cual se explica en parte debido a que en 2008-2009 se presentó la crisis financiera y, además, en 2009, en México, inició la crisis sanitaria de la Influenza H1N1, también, a inicios de 2011 empezaron los problemas financieros de la empresa Mexianana de Aviación, la cual terminó por cerrar sus operaciones a finales de agosto de ese mismo año. Todos esos acontecimientos afectaron la economía lo que explica la tendencia a la baja en el periodo 2008-2011.
 
 Además, se puede sospechar que hay presencia de estacionalidad por el patrón que sigue la serie, también, hay que considerar que la data representa a las personas que viajan por avión, por lo que, el sentido común nos indicaría que en periodos vacacionales la cantidad de personas que salen de viaje aumentará. Más adelante lo tendremos que comprobar formalmente.
+</div>
 
-## Datos atípicos (outliers)
+## <span style="color:rgb(0, 0, 205)">Datos atípicos (outliers)</span>
 &nbsp;
 
+<div class=text-justify>
 Algo que afecta mucho a los modelos de series de tiempo son los llamados outliers o datos atípicos, ya que al ser observaciones demasiado grandes o pequeñas afectan la capacidad predictiva de los modelos. Por lo tanto, es de vital importancia identificarlos y tratarlos. Un primer análisis visual se hace con apoyo del boxplot:
+</div>
 
 ```{r}
 salidas %>% 
@@ -197,7 +207,9 @@ descr(salidas$Salidas,
   kable_paper("hover", full_width = F)
 ```
 
+<div class=text-justify>
 Pasemos a otro método más robusto para detectar si realmente en la serie hay observaciones atípicas. Para esto nos apoyaremos del paquete anomalize que nos permitirá calibrar el intervalo de confianza y el porcentaje máximo de posibles valores atípicos a mostrar, entre otras cosas. Algo importante a mencionar es que este paquete requiere que el input esté en formato de tibble o tibble_time, por lo que, no usaremos el objeto tipo serie de tiempo creado al inicio del análisis.
+</div>
 
 ```{r message=FALSE}
 salidas.tbl <- salidas
@@ -222,9 +234,11 @@ salidas.tbl %>%
 
 ```
 
+<div class=text-justify>
 En la gráfica anterior podemos ver que se detectaron algunas observaciones atípicas, sin embargo, al parecer solo uno de ellos está muy alejado del patrón de la serie. Tendremos que tratarlo para que no nos cause problemas más adelante.
 
 Para identificar qué observaciones son atípicas usaremos la función tsoutliers del paquete forecast, ya que permite hacer la identificación y, además, nos propondrá los valores a sustituir.
+</div>
 
 ```{r}
 tsoutliers(salidas.ts) %>% 
@@ -234,7 +248,9 @@ tsoutliers(salidas.ts) %>%
   kable_paper("hover", full_width = F)
 ```
 
+<div class=text-justify>
 Vemos que la función identifica las observaciones en las posiciones 14 y 17 como atípicas, y nos muestra los valores por los cuales haría la sustitución (que utiliza el método de interpolación lineal). El trabajo lo hace la función tsclean que no solo sustituye los valores atípicos sino que también identifica valores faltantes (que no es este el caso).
+</div>
 
 Veamos gráficamente cuáles serán los puntos que se sustituirán:
 
@@ -290,19 +306,23 @@ Se siguen detectando datos atípicos, sin embargo, no están muy alejados del in
 
 Algo importante a mencionar es que se debe tener bien claro el objetivo del análisis que se esté buscando, ya que en algunos casos podría ser **incorrecto sustituir las observaciones atípicas.**
 
-## Correlogramas
+## <span style="color:rgb(0, 0, 205)">Correlogramas</span>
 &nbsp;
 
+<div class=text-justify>
 Para todos los modelos de series de tiempo es de suma importancia revisar las funciones de autocorrelación tanto simple como parcial con el propósito de empezar a conocer cómo está la estructura de los datos. Los correlogramas en palabras simples nos muestran la memoria de la serie, o sea, qué tanto depende el dato actual de lo que sucedió en el pasado. veamos los correlogramas de la serie con 48 rezagos, que son un tercio de la longitud de la serie (lo recomendado):
+</div>
 
 ```{r}
 ts_cor(salidas.ts, lag.max = 48)
 ```
 &nbsp;
 
+<div class=text-justify>
 Al observar el correlograma ACF podemos sospechar que la serie no es estacionaria, o sea, la media no es constante a lo largo del tiempo, porque los valores de la función de autocorrelación no decaen rápidamente conforme aumentan los rezagos en el tiempo. Además, al parecer también hay presencia de estacionalidad, ya que en PACF hay coeficientes significativos, por lo que, tenemos que descomponer la serie para ver cada componente por separado.
+</div>
 
-## Descomposición de la serie.
+## <span style="color:rgb(0, 0, 205)">Descompocisión de la serie</span>
 &nbsp;
 
 Vamos a generar las gráficas de los componentes de esta serie: tendencia, estacionalidad y residuo.
@@ -311,6 +331,7 @@ Vamos a generar las gráficas de los componentes de esta serie: tendencia, estac
 ts_decompose(salidas.ts, type = "additive")
 ```
 
+<div class=text-justify>
 Lo que se puede apreciar en las gráficas es que la tendencia es aditiva, ya que la serie va en aumento con el tiempo y las oscilaciones no se van haciendo más grandes sino que se mantienen del mismo tamaño. Lo anterior, tenemos que confirmarlo de manera un poco más formal.
 
 Hay presencia de estacionalidad muy marcada, ya que el mismo patrón se repite año tras año. También, hay que confirmarlo e identificar en qué meses se presenta.
@@ -322,6 +343,7 @@ Vamos a identificar formalmente el tipo de tendencia que tiene la serie, para lo
 * comparar ambas series en un gráfico de dispersión.
 * calcular el coeficiente de correlación.
 * probar la significancia estadistica de dicho coeficiente.
+</div>
 
 ```{r}
 tabla <- salidas %>% 
@@ -348,12 +370,16 @@ cor(tabla$ln_Mediana, tabla$ln_Rango)
 cor.test(tabla$ln_Mediana, tabla$ln_Rango)
 ```
 
+<div class=text-justify>
 Al ver la gráfica creada podemos ver que existe cierta dependencia y tendencia positiva entre el nivel y la dispersión, lo que nos sugiere que la tendencia es de tipo multiplicativa, sin embargo, al volver a la gráfica en niveles se observa que en los primeros años la serie es constante y a partir de 2011 se presenta tendencia creciente. Por lo anterior, los primeros años están jalando o disfrasando el verdadero tipo de tendencia de la serie. Además, hay que recordar que ya comprobamos que la serie presenta un quiebre de tendencia, lo cual afecta esta gráfica, ya que las primeras observaciones que corresponden al periodo 2008-2011 la relación es positiva y para el periodo 2012-2019 parece que no hay relación.
+</div>
 
-## Análisis de estacionariedad.
+## <span style="color:rgb(0, 0, 205)">Análisis de estacionariedad</span>
 &nbsp;
 
+<div class=text-justify>
 En esta parte, vamos a analizar formalmente la estacionariedad de la serie. En series de tiempo, es necesario que la serie a modelar sea estable, o sea, tenga una media y varianza constantes, sobre todo si el modelo a usar para realizar el pronóstico es un arima. Antes del análisis hay que tener presente que la serie al presentar quiebre de tendencia afectará cualquier prueba de estacionariedad que se le haga, por lo tanto, es de esperar que, aunque se apliquen diferencias, puede que no pase la prueba elegida.
+</div>
 
 Volvamos a mirar los correlogramas:
 
@@ -370,7 +396,9 @@ En el ACF vemos que los coeficientes decaen lentamente, lo cual es un indicativo
 adf.test(salidas.ts)
 ```
 
+<div class=text-justify>
 El p-valor de la prueba (0.01203) es menor al nivel de significancia de 0.05, por lo que, la prueba nos indica que la serie es estacionaria. Contrario a lo que nos mostraba el correlograma, o sea, al no tener raíz unitaria la serie no presenta un patrón sistemático impredecible. Sin embargo, vamos a determinar con apoyo de un gráfico y una regresión si debemos hacer alguna transformación a los datos, ya que la gráfica en niveles de la serie sugiere estabilizar la serie. Será la gráfica conocida como rango/media, que consiste en calcular la media de cada periodo (año) y la varianza. Posteriormente, se hace una regresión con ambas variables y si es significativo el coeficiente asociado con la media entonces hay que aplicar alguna transformación a la serie:
+</div>
 
 ```{r}
 tabla2 <- salidas %>% 
@@ -392,7 +420,7 @@ coeftest(lm(ln_varianza ~ ln_Media, data = tabla2))
 
 En el gráfico se aprecia que los primeros años están jalando la tendencia de la nube de puntos, además, el resultado de la regresión nos indica que debemos hacer alguna transformación a la serie, ya que el coeficiente asociado con la media resultó significativo.
 
-## Detección de estacionalidad.
+## <span style="color:rgb(0, 0, 205)">Detección de estacionalidad</span>
 &nbsp;
 
 Ahora, pasemos al análisis de la estacionalidad empezando por el análisis visual:
@@ -430,7 +458,9 @@ ggseasonplot(salidas.ts) +
   labs(title = "Salidas por Mes", y = "Salidas", x = "Mes")
 ```
 
+<div class=text-justify>
 Las gráficas vistas hasta aquí nos indican que es en el mes de julio donde la afluencia de pasajeros es mayor, lo cual coincide con el periodo vacacional de verano. También, se aprecia que el segundo mes más alto de salidas es diciembre como era de esperarse por la temporada navideña.
+</div>
 
 Sigamos viendo algunas vistas más para confirmar el patrón estacional existente:
 
@@ -448,7 +478,9 @@ ts_seasonal(salidas.ts - decompose(salidas.ts)$trend,
             title = "Gráfico sin Tendencia")
 ```
 
+<div class=text-justify>
 Sin el efecto de la tendencia se aprecia más claramente el patrón estacional. Podemos identificar que julio, agosto y diciembre son los meses de mayores salidas o vuelos, por el contrario, enero, febrero y septiembre los meses de menor demanda o salidas de pasajeros.
+</div>
 
 Otra vista diferente de la serie es mediante un heatmap:
 
@@ -456,7 +488,9 @@ Otra vista diferente de la serie es mediante un heatmap:
 ts_heatmap(salidas.ts, title = "Salidas")
 ```
 
+<div class=text-justify>
 Se aprecia que la demanda de pasajeros que sale de viaje ya sea al interior del país o al extranjero, desde la Ciudad de México, ha estado creciendo de manera sostenida desde los últimos 8 años. Además, se confirma que julio es el mes con mayor demanda seguido por el mes de diciembre.
+</div>
 
 Ahora, el siguiente paso es identificar el nivel de correlación entre la serie y sus rezagos:
 
@@ -464,13 +498,17 @@ Ahora, el siguiente paso es identificar el nivel de correlación entre la serie 
 ts_cor(salidas.ts, lag.max = 48)
 ```
 
+<div class=text-justify>
 Como era de esperarse sí hay una correlación entre la serie y sus rezagos estacionales. El retraso estacional (o retraso 12) de la serie tiene una fuerte relación lineal con la serie. Lo anterior, lo podemos ver más claramente al graficar estos componentes:
+</div>
 
 ```{r}
 ts_lags(salidas.ts, lags = c(12, 24, 36, 48))
 ```
 
+<div class=text-justify>
 Solo nos queda identificar formalmente la estacionalidad. Para ello vamos a crear variables dummies, una por cada mes para, posteriormente, hacer una regresión sin incluir la constante para evitar la colinealidad. Para que el efecto estacional este presente los parámetros estimados del modelo deben ser estadísticamente distintos de cero, individualmente.
+</div>
 
 ```{r}
 tabla3 <- salidas %>% 
@@ -524,9 +562,10 @@ salidas %>%
 
 Los resultados nos indican que en el mes de julio la demanda es mayor al promedio anual un 17%, aproximadamente, por el contrario, en el mes de febrero la demanda de salidas es 16% menor al promedio anual, en otras palabras, en los meses de febrero, en promedio,  solo se llega al 84% del promedio anual.
 
-# Transformaciones
+# <span style="color:rgb(0, 0, 205)">Transformaciones</span>
 &nbsp;
 
+<div class=text-justify>
 Vimos que la serie en niveles tiene tendencia creciente y de tipo aditiva, porque los picos en cada año no aumentan. Por lo anterior, se tiene que aplicar alguna transformación y la más común son las diferencias.
 
 Hay que identificar cuántas diferenciaciones aplicar a la serie. Se puede hacer aplicando 1 diferencia y revisar el correlograma hasta que veamos la serie sin tendencia, sin embargo, optaremos por un camino más directo con apoyo de la función ndiffs del paquete forecast que nos indicará cuántas diferencias aplicar a la serie:
@@ -538,23 +577,28 @@ Ya que confirmamos que hay estacionalidad en la serie tenemos que determinar cu�
 Número de diferenciaciones a la parte regular de la serie: `r nsdiffs(salidas.ts)`
 
 Por lo tanto, hay que diferenciar 1 vez en la parte regular y 1 vez a la parte estacional de la serie en niveles. Esto se especificará en el algoritmo del modelo.
+</div>
 
-# Conjunto de entrenamiento y prueba
+# <span style="color:rgb(0, 0, 205)">Conjunto de entrenamiento y prueba</span>
 &nbsp;
 
+<div class=text-justify>
 Antes de generar el primer modelo, es necesario dividir la serie en una parte para entrenar el modelo y otra parte para validarlo. Cuando se trabaja con series de tiempo dicha partición no se hace de manera aleatoria como para cualquier otro modelo de machine learning, ya que las series de tiempo van ordenadas de manera cronológica, por lo tanto, el conjunto de test siempre será la parte final de la serie. Consideraremos el año 2019 para probar el modelo y el resto para entrenar el modelo.
+</div>
 
 ```{r}
 salidas.ts.train <- window(salidas.ts, start = c(2008,1), end = c(2018,12))
 salidas.ts.test <- window(salidas.ts, start = c(2019,1), end = c(2019,12))
 ```
 
-# Creación del modelo base
+# <span style="color:rgb(0, 0, 205)">Creación del modelo base</span>
 &nbsp;
 
+<div class=text-justify>
 Cuando el objetivo de un proyecto sea el pronosticar una serie de tiempo, es altamente recomendable hacer un primer modelo que será la base a partir del cual se tratará de mejorarlo. Hay muchas métricas para evaluar este tipo de modelos, la mayoría relacionadas con los errores, o sea, la diferencia entre el valor real y el valor pronosticado. Ahora, lo que se debe evaluar es el dataset de test, o sea, la parte del conjunto de datos que el modelo no ha visto. En el presente análisis usaremos el Mean Absolute Percentage Error (MAPE), ya que es más fácil de interpretar.
 
 Nuestro primer modelo será el modelo básico de suavizado exponencial ets, que está formado por: el componente de error, el componente de tendencia y el componente estacional.
+</div>
 
 # **ETS**: **E**xponen**T**ial **S**moothing
 
@@ -634,7 +678,9 @@ qqline(fit.ets.diff$residuals)
 jarque.bera.test(fit.ets.diff$residuals)
 ```
 
+<div class=text-justify>
 En el correlograma de los residuales podemos ver que al inicio solo un coeficiente sale de las bandas, sin embargo, el test no lo pasa. En cuanto a la prueba de normalidad vemos que ya la pasa al tener un p-valor mayor al 0.05. Nos quedamos con este modelo, por lo que, ahora se pronosticarán los próximos 12 meses.
+</div>
 
 ```{r, message=FALSE}
 fc.ets.diff <- forecast(fit.ets.diff, h = 12)
@@ -667,7 +713,9 @@ El modelo con diferencias mejoró, ya que se reduce el error de test de 2.3 a 1.
 
 Ahora, optimizaremos los parámetros.
 
+<div class=text-justify>
 Este algoritmo tiene tres parámetros que están relacionados con el suavisado (alpha), la tendencia (beta) y la estacionalidad (gamma). Por tanto, vamos a optimizarlos para encontrar el valor que nos arroje el modelo con el menor error y una vez encontrado el valor del componente volveremos a reajustar el modelo.
+</div>
 
 Alpha: componente de suavisado
 
@@ -849,7 +897,9 @@ ggtsdiag(fitarima1)
 
 ```
 
+<div class=text-justify>
 La gráfica de los residuales no muestra tendencia lo cual es bueno y en los correlogramas solo un coeficiente sale de los límites. El p-value de la prueba Ljung-Box es mayor al 0.05, lo cual nos indica que los residuales no están correlacionados. Además, los p-valores para la prueba Q de Ljung-Box están por encima de 0,05, lo que indica "no significativo".
+</div>
 
 Normalidad:
 
@@ -919,7 +969,9 @@ ggtsdiag(fitarima2)
 
 ```
 
+<div class=text-justify>
 El p-value de la prueba Ljung-Box es mayor al 0.05, por lo tanto, los residuales no están correlacionados, además, en su gráfica no se aprecia ningún patrón. Todos los coeficiente están dentro de las bandas en los correlogramas. Los p-valores para la prueba Q de Ljung-Box están por encima de 0,05, lo que indica "no significativo".
+</div>
 
 Normalidad:
 
@@ -1005,7 +1057,9 @@ ggtsdiag(fitarima3)
 
 ```
 
+<div class=text-justify>
 Este modelo pasa la prueba de Ljung-Box al tener un p-valor mayor al 0.05, además, la gráfica de los residuales no muestran ningún patrón o tendencia. En los correlogramas solo un coeficiente sale de la banda superior. Los p-valores para la prueba Q de Ljung-Box están por encima de 0,05, lo que indica "no significativo".
+</div>
 
 Normalidad:
 
@@ -1050,9 +1104,11 @@ autoplot(fc.fitarima3) +
 
 ```
 
+<div class=text-justify>
 Tenemos tres modelos arima los cuales todos pasaron la prueba de autocorrelación en los residuales y solo el modelo arima 3 no pasa la prueba de normalidad. El modelo que presenta el menor error es el 1 con un MAPE de 1.08. Descartaremos el modelo 3 ya que sus residuales no se distribuyen normalmente.
 
 De estos dos modelos elegiremos el modelo 1, porque generó el menor error de test, además, ambos modelos tienen 3 coeficientes, por lo que, no podemos basarnos en el principio de parsimonia (el más simple).
+</div>
 
 # **TSLM**: **T**ime **S**eries **L**inear **M**odel
 
@@ -1179,7 +1235,9 @@ s %>%
           subtitle = "Las Salidas pronosticadas quedaron por debajo durante la mayor parte del año", y = "Diferencia", x = "Año")
 ```
 
+<div class=text-justify>
 En el siguiente gráfico de dispersión, se compara el ajuste de las observaciones pronosticadas contra las observaciones reales. Se aprecia como, al igual que en los demás modelos, el pronóstico del mes de febrero quedó muy por debajo del valor real. En los demás meses los pronósticos se ajustaron relativamente bien.
+</div>
 
 ```{r, message=FALSE}
 qplot(s$y, s$yhat, log = "xy") +
@@ -1419,7 +1477,7 @@ plot(m2, forecast2) +
 
 Este modelo se ve y se ajusta mejor, además, el error de test bajó a 1.88, por lo que, nos quedamos con este segundo modelo multiplicativo.
 
-# Ensamble
+# <span style="color:rgb(0, 0, 205)">Ensamble</span>
 
 Son tres los modelos que generaron un bajo error MAPE en el conjunto de prueba, por lo que, los vamos a combinar esperando obtener un modelo más robusto. Para hacer lo anterior, crearemos una función que haga el ensamble de los siguientes modelos: 
 
@@ -1517,7 +1575,9 @@ df_ensamble %>% kbl(align = "c",
 
 ```
 
+<div class=text-justify>
 Los pronósticos se acercan a los datos reales de test, que corresponden al año 2019, sin embargo, el mes de mayo quedó subestimado y, por el contrario, el mes de julio quedó sobreestimado esto es debido a la influencia del modelo Prophet. Ahora, comparemos los errores de los tres modelos con el del ensamble para ver si valio la pena aplicar esta técnica.
+</div>
 
 ```{r}
 # Se crea una function que calcule algunas medidas de evaluación: 
@@ -1579,7 +1639,7 @@ bind_rows(df_ets %>% eval_medidas(),
 
 Después de hacer el ensamble de los tres mejores modelos a final de cuentas no se pudo mejorar el MAPE del mejor modelo, el arima, lo anterior, no es de sorprender, pues el ensamble se recomienda cuando los modelos que se juntarán presentan diferencias entre ellos, lo que en este caso no ocurrió.
 
-# Modelo final
+# <span style="color:rgb(0, 0, 205)">Modelo final</span>
 &nbsp;
 
 Por lo anterior, nos quedamos con el modelo **arima**, que tuvo un MAPE de test de 1.09%.
@@ -1666,7 +1726,9 @@ test_forecast(forecast.obj = fc.fitarima.final,
 
 ```
 
+<div class=text-justify>
 El error MAPE del modelo es: `r forecast::accuracy(fc.fitarima.final, salidas.2020.ts)[2,5]`. Hay que tener presente que los argumentos de este modelo son diferentes al modelo arima1 creado anteriormente, esto debido a que para su construcción se utilizó toda la serie histórica, desde enero de 2008 hasta diciembre de 2019, por lo tanto, ya no evaluamos el modelo con un conjunto de test, sino que directamente lo evaluamos sobre los datos reales de enero-febrero de 2020 (que son las observaciones que se pronosticaron).
+</div>
 
 ```{r}
 # Data Frame arima final: 
@@ -1682,8 +1744,9 @@ data_frame(Fecha = salidas.2020$Fecha %>% as.vector(),
 
 ```
 
-# Conclusiones
+# <span style="color:rgb(0, 0, 205)">Conclusiones</span>
 
+<div class=text-justify>
 La serie presentó cambio de tendencia en el año 2011 debido a diversos factores coyunturales que se presentaron a lo largo del periodo 2008-2011, como la crisis financiera de 2009, la pandemia de Influenza H1N1 y la quiebra de la empresa Mexinana de Aviación.
 
 Se detectaron patrones estacionales en los meses de julio, agosto y diciembre (periodo de alta demanda) y en enero, febrero y septiembre (periodo de baja demanda).
@@ -1693,7 +1756,7 @@ Cuando se vaya a trabajar con series de tiempo es de suma importancia el hacer p
 Es altamente recomendable hacer un primer modelo que será la base a partir del cual se tratará de mejorarlo de acuerdo con la métrica elegida para su evaluación y, además, no olvidar que la evaluación se debe de hacer en la parte de prueba, es decir, sobre el conjunto de datos que el algoritmo no ha visto.
 
 Cuando se opte por hacer un ensamble de modelos se debe tener en cuenta que esta estratégia funcionará mejor si los modelos a juntar presentan diferencias marcadas entre sí, porque de lo contrario se puede generar un peor resultado.
-
+</div>
 
 
 
