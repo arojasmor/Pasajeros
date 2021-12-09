@@ -322,7 +322,7 @@ ts_cor(salidas.ts, lag.max = 48)
 Al observar el correlograma ACF podemos sospechar que la serie no es estacionaria, o sea, la media no es constante a lo largo del tiempo, porque los valores de la función de autocorrelación no decaen rápidamente conforme aumentan los rezagos en el tiempo. Además, al parecer también hay presencia de estacionalidad, ya que en PACF hay coeficientes significativos, por lo que, tenemos que descomponer la serie para ver cada componente por separado.
 </div>
 
-## <span style="color:rgb(0, 0, 205)">Descompocisión de la serie</span>
+## <span style="color:rgb(0, 0, 205)">Descomposición de la serie</span>
 &nbsp;
 
 Vamos a generar las gráficas de los componentes de esta serie: tendencia, estacionalidad y residuo.
