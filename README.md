@@ -24,6 +24,8 @@ Para obtener el modelo final se probaron varios modelos y se eligió el que gene
 
 Finalmente, se hizo un ensamble con los tres mejores modelos con el propósito de disminuir el MAPE.
 
+Para ver el código abrir el archivo Rmd y en una página web pulsar [aquí](https://rpubs.com/arojasmor17/pasajeros).
+
 
 
 
